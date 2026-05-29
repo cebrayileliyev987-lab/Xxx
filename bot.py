@@ -199,11 +199,8 @@ load_data()
 # --- End Database Setup ---
 
 # --- Malware Detection Functions ---
-# Replace the magic import and is_suspicious_file function
-
 def get_file_type(file_content):
     """Determine file type using magic numbers and mimetypes"""
-    # Common file signatures
     signatures = {
         b'\x7fELF': 'application/x-executable',
         b'MZ': 'application/x-dosexec',
@@ -217,7 +214,6 @@ def get_file_type(file_content):
         if file_content.startswith(signature):
             return mime_type
     
-    # Fallback to extension-based detection or return unknown
     return 'application/octet-stream'
 
 def is_suspicious_file(file_content, file_name):
@@ -227,7 +223,6 @@ def is_suspicious_file(file_content, file_name):
     """
     file_lower = file_name.lower()
     
-    # Check file extensions first (same as before)
     suspicious_extensions = ['.exe', '.dll', '.bat', '.cmd', '.scr', '.com', '.pif', '.application', '.gadget',
                             '.msi', '.msp', '.com', '.scr', '.hta', '.cpl', '.msc', '.jar', '.bin', '.deb', '.rpm',
                             '.apk', '.app', '.dmg', '.iso', '.img']
@@ -235,12 +230,10 @@ def is_suspicious_file(file_content, file_name):
     if any(file_lower.endswith(ext) for ext in suspicious_extensions):
         return True, f"Şüpheli dosya uzantısı: {file_name}"
     
-    # Check for malware signatures in file content
     for signature in MALWARE_SIGNATURES:
         if file_content.startswith(signature):
             return True, f"Kötü amaçlı yazılım imzası tespit edildi: {signature}"
     
-    # Check for encrypted file indicators
     sample_size = min(len(file_content), 4096)
     file_sample = file_content[:sample_size]
     
@@ -248,13 +241,11 @@ def is_suspicious_file(file_content, file_name):
         if indicator in file_sample:
             return True, f"Şifrelenmiş dosya göstergesi: {indicator.decode('utf-8', errors='ignore')}"
     
-    # Check for suspicious keywords in first 8KB
     sample_text = file_sample.decode('utf-8', errors='ignore').lower()
     for keyword in SUSPICIOUS_KEYWORDS:
         if keyword.decode('utf-8').lower() in sample_text:
             return True, f"Şüpheli kelime bulundu: {keyword.decode('utf-8')}"
     
-    # Check file type using our custom function instead of magic
     try:
         file_type = get_file_type(file_sample)
         if file_type in ['application/x-dosexec', 'application/x-executable', 'application/x-mach-binary']:
@@ -1749,8 +1740,6 @@ def viewlog_callback(call):
         logger.error(f"viewlog_callback hatası: {e}")
         bot.answer_callback_query(call.id, "Log görüntüleme hatası.")
 
-# ... (rest of the existing callback functions remain the same)
-
 def upload_callback(call):
     user_id = call.from_user.id
     file_limit = get_user_file_limit(user_id)
@@ -2483,7 +2472,7 @@ if __name__ == '__main__':
     logger.info("="*40 + "\n🤖 Bot Başlatılıyor...\n" + f"🐍 Python: {sys.version.split()[0]}\n" +
                 f"🔧 Ana Dizin: {BASE_DIR}\n📁 Yükleme Dizini: {UPLOAD_BOTS_DIR}\n" +
                 f"📊 Veri Dizini: {IROTECH_DIR}\n🔑 Sahip ID: {OWNER_ID}\n🛡️ Yöneticiler: {admin_ids}\n" + "="*40)
-    canli_tut()
+    keep_alive()
     logger.info("🚀 Polling başlatılıyor...")
     while True:
         try:
